@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tambur Kaplama</title>
+<meta name="theme-color" content="#1f2937">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kaplama">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#ea580c; --accent-2:#fff7ed; --input:#f9fafb;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0b0f14; --card:#161b22; --text:#f3f4f6; --muted:#9ca3af; --line:#2a313b;
+         --accent:#fb923c; --accent-2:#2a1a0e; --input:#0f141a; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:22px;margin:6px 2px 14px;font-weight:700}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;
+  border:1px solid var(--line)}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  margin:0 0 12px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+.field{position:relative}
+input{width:100%;font-size:20px;padding:12px 44px 12px 12px;border-radius:12px;
+  border:1px solid var(--line);background:var(--input);color:var(--text);outline:none;
+  font-variant-numeric:tabular-nums;appearance:none}
+input:focus{border-color:var(--accent)}
+.unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:14px;color:var(--muted);pointer-events:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--input);color:var(--text);
+  border-radius:999px;padding:6px 12px;font-size:13px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.result{background:var(--accent-2);border-color:transparent}
+.big{font-size:34px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;margin:2px 0 10px}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);
+  font-size:15px;font-variant-numeric:tabular-nums}
+.row:first-of-type{border-top:none}
+.row span:first-child{color:var(--muted)}
+.btns{display:flex;gap:10px;margin-top:12px}
+button.main{flex:1;font-size:16px;font-weight:600;padding:13px;border-radius:12px;border:none;
+  background:var(--accent);color:#fff}
+button.ghost{flex:1;font-size:16px;font-weight:600;padding:13px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);color:var(--text)}
+.hist-item{padding:10px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.hist-item:first-child{border-top:none}
+.hist-item .t{flex:1;font-size:14px}
+.hist-item .t b{font-size:16px}
+.hist-item .s{color:var(--muted);font-size:12px;margin-top:2px}
+.del{border:none;background:none;color:var(--muted);font-size:20px;padding:4px 8px}
+.empty{color:var(--muted);font-size:14px}
+.note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tambur Kauçuk Kaplama</h1>
+
+  <div class="card">
+    <h2>Tambur</h2>
+    <div class="grid">
+      <div>
+        <label for="d">Tambur çapı (çıplak)</label>
+        <div class="field"><input id="d" inputmode="decimal" placeholder="0"><span class="unit">mm</span></div>
+      </div>
+      <div>
+        <label for="l">Kaplama boyu</label>
+        <div class="field"><input id="l" inputmode="decimal" placeholder="0"><span class="unit">mm</span></div>
+      </div>
+      <div>
+        <label for="t">Kauçuk kalınlığı</label>
+        <div class="field"><input id="t" inputmode="decimal" placeholder="0"><span class="unit">mm</span></div>
+      </div>
+      <div>
+        <label for="q">Adet</label>
+        <div class="field"><input id="q" inputmode="numeric" value="1"><span class="unit">ad</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Kauçuk ve fiyat</h2>
+    <div class="grid">
+      <div class="full">
+        <label for="rho">Kauçuk yoğunluğu</label>
+        <div class="field"><input id="rho" inputmode="decimal" value="1,20"><span class="unit">g/cm³</span></div>
+        <div class="chips" id="rhoChips">
+          <button class="chip" data-v="1,15">1,15</button>
+          <button class="chip" data-v="1,20">1,20</button>
+          <button class="chip" data-v="1,30">1,30</button>
+          <button class="chip" data-v="1,45">1,45</button>
+        </div>
+      </div>
+      <div>
+        <label for="fire">Fire payı</label>
+        <div class="field"><input id="fire" inputmode="decimal" value="0"><span class="unit">%</span></div>
+      </div>
+      <div>
+        <label for="p">Kg fiyatı</label>
+        <div class="field"><input id="p" inputmode="decimal" placeholder="0"><span class="unit">₺</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card result">
+    <h2>Sonuç</h2>
+    <div class="big" id="total">0,00 ₺</div>
+    <div class="row"><span>Kauçuk ağırlığı (1 adet)</span><span id="w1">0,00 kg</span></div>
+    <div class="row"><span>Toplam ağırlık (fire dahil)</span><span id="wt">0,00 kg</span></div>
+    <div class="row"><span>Kaplamalı çap</span><span id="dOut">0 mm</span></div>
+    <div class="row"><span>Kaplama alanı (1 adet)</span><span id="area">0,00 m²</span></div>
+    <div class="row"><span>Hacim (1 adet)</span><span id="vol">0,00 dm³</span></div>
+    <div class="btns">
+      <button class="ghost" id="clear">Temizle</button>
+      <button class="main" id="save">Kaydet</button>
+    </div>
+    <div class="note">Hesap: π/4 × ((Çap + 2×Kalınlık)² − Çap²) × Boy × Yoğunluk. Tamburun yan yüzleri dahil değildir.</div>
+  </div>
+
+  <div class="card">
+    <h2>Kayıtlar</h2>
+    <div id="hist"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = v => { const n = parseFloat(String(v).replace(/\s/g,'').replace(',', '.')); return isFinite(n) ? n : 0; };
+const fmt = (n, d=2) => n.toLocaleString('tr-TR', {minimumFractionDigits:d, maximumFractionDigits:d});
+const ids = ['d','l','t','q','rho','fire','p'];
+
+function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function load(k, def){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; }catch(e){ return def; } }
+
+let last = null;
+
+function calc(){
+  const D = num($('d').value), L = num($('l').value), T = num($('t').value);
+  const Q = Math.max(1, Math.round(num($('q').value)) || 1);
+  const rho = num($('rho').value), fire = num($('fire').value), P = num($('p').value);
+
+  const Do = D + 2*T;
+  const volMm3 = Math.PI/4 * (Do*Do - D*D) * L;     // mm³
+  const volDm3 = volMm3 / 1e6;                       // dm³ = litre
+  const w1 = volDm3 * rho;                           // kg (g/cm³ = kg/dm³)
+  const wt = w1 * Q * (1 + fire/100);
+  const total = wt * P;
+  const area = Math.PI * D * L / 1e6;                // m²
+
+  $('w1').textContent = fmt(w1) + ' kg';
+  $('wt').textContent = fmt(wt) + ' kg';
+  $('dOut').textContent = fmt(Do, Do % 1 ? 1 : 0) + ' mm';
+  $('area').textContent = fmt(area) + ' m²';
+  $('vol').textContent = fmt(volDm3) + ' dm³';
+  $('total').textContent = fmt(total) + ' ₺';
+
+  document.querySelectorAll('#rhoChips .chip').forEach(c =>
+    c.classList.toggle('on', num(c.dataset.v) === rho));
+
+  last = {D, L, T, Q, rho, fire, P, w1, wt, total, ts: Date.now()};
+  store('inputs', Object.fromEntries(ids.map(i => [i, $(i).value])));
+}
+
+function renderHist(){
+  const h = load('hist', []);
+  const el = $('hist');
+  if(!h.length){ el.innerHTML = '<div class="empty">Henüz kayıt yok.</div>'; return; }
+  el.innerHTML = h.map((r, i) => `
+    <div class="hist-item">
+      <div class="t">
+        <b>${fmt(r.total)} ₺</b> · ${fmt(r.wt)} kg
+        <div class="s">Ø${fmt(r.D,0)} × ${fmt(r.L,0)} mm, ${fmt(r.T,1)} mm kauçuk, ${r.Q} ad, ${fmt(r.P)} ₺/kg
+        · ${new Date(r.ts).toLocaleDateString('tr-TR')}</div>
+      </div>
+      <button class="del" data-i="${i}" aria-label="Sil">×</button>
+    </div>`).join('');
+  el.querySelectorAll('.del').forEach(b => b.onclick = () => {
+    const h2 = load('hist', []); h2.splice(+b.dataset.i, 1); store('hist', h2); renderHist();
+  });
+}
+
+// başlangıç
+const saved = load('inputs', null);
+if(saved) ids.forEach(i => { if(saved[i] !== undefined) $(i).value = saved[i]; });
+ids.forEach(i => $(i).addEventListener('input', calc));
+document.querySelectorAll('#rhoChips .chip').forEach(c =>
+  c.onclick = () => { $('rho').value = c.dataset.v; calc(); });
+$('save').onclick = () => {
+  if(!last || last.total <= 0 && last.wt <= 0) return;
+  const h = load('hist', []); h.unshift(last); store('hist', h.slice(0, 50)); renderHist();
+  $('save').textContent = 'Kaydedildi ✓'; setTimeout(() => $('save').textContent = 'Kaydet', 1200);
+};
+$('clear').onclick = () => { ['d','l','t','p'].forEach(i => $(i).value = ''); $('q').value = '1'; calc(); };
+
+calc(); renderHist();
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
