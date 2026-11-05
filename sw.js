@@ -1,5 +1,5 @@
 // İnternetsiz çalışması için dosyaları önbelleğe alır.
-const CACHE = 'kaplama-v1';
+const CACHE = 'kaplama-v2';
 const FILES = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
